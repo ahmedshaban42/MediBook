@@ -1,0 +1,3 @@
+node-modules
+.prod.env
+.dev.env
