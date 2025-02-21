@@ -2,11 +2,12 @@ import blacklistmodel from "../../../../DB/models/blacklist.model.js";
 import adminModel from "../../../../DB/models/admin.model.js";
 import { generateToken,verifyToken } from "../../../../utils/token.utils.js";
 import {v4 as uuidv4}from 'uuid'
+import { where } from "sequelize";
 
 
 export const signInadmin=async(req,res)=>{
     const{email,password}=req.body
-    const admin=await adminModel.findOne({email})
+    const admin=await adminModel.findOne({where:{email}})
     if(!admin){
         return res.status(400).json({message:'email or password not valid'})
     }

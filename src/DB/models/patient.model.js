@@ -16,7 +16,7 @@ patientModel.init({
     },
     email: {
         type: DataTypes.STRING,
-        unique: 'idx_email_unique',
+        unique: 'idx_email_patient_unique',
         allowNull: false,
         validate: {
             isEmail: true,

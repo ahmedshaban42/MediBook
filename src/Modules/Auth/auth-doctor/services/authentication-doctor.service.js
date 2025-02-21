@@ -7,7 +7,7 @@ import {v4 as uuidv4}from 'uuid'
 
 export const signInDoctor=async(req,res)=>{
     const {email,password}=req.body
-    const doctor=await doctormodel.findOne({email,isVerified:true})
+    const doctor=await doctormodel.findOne({where:{email,isVerified:true}})
     if(!doctor){
         return res.status(400).json({message:'email or password not valid'})
     }

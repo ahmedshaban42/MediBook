@@ -8,3 +8,4 @@ export const Encryption=async({value,secretkey}={})=>{
 export const Decryption=async({cipher,secretkey}={})=>{
     return CryptoJS.AES.decrypt(cipher,secretkey).toString(CryptoJS.enc.Utf8)
 }
+

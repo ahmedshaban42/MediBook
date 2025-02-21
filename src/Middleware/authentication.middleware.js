@@ -19,9 +19,7 @@ export const authenticationMiddleware=(modelName)=>{
                 return res.status(400).json({message:'plasse login frist'})
             }
 
-            const user=await modelName.findByPk(decodeddata.id,{
-                attributes: { exclude: ['password','isVerified','otpExpiresAt','confirmotp'] }
-            })
+            const user=await modelName.findByPk(decodeddata.id)
             if(!user){
                 return res.status(400).json({message:'user not found plase signUp'})
             }

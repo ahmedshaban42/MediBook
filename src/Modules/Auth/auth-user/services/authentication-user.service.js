@@ -4,7 +4,7 @@ import {Decryption,Encryption} from '../../../../utils/encryption.utils.js'
 import {emitter} from '../../../../Services/sent-email.service.js'
 import { generateToken,verifyToken } from "../../../../utils/token.utils.js"
 import {v4 as uuidv4}from 'uuid'
-import { Sequelize } from "sequelize"
+import { Sequelize, where } from "sequelize"
 import blacklistmodel from "../../../../DB/models/blacklist.model.js"
 
 
@@ -13,7 +13,7 @@ import blacklistmodel from "../../../../DB/models/blacklist.model.js"
 export const signUpService=async(req,res)=>{
     const {patientName,email,DOB,gender,password,phone,bloodtype}=req.body
 
-    const isEmailfound =await patientModel.findOne({email})
+    const isEmailfound =await patientModel.findOne({where:{email}})
     if(isEmailfound){
         return res.status(400).json({message:'email is already exists'})
     }
@@ -22,7 +22,7 @@ export const signUpService=async(req,res)=>{
 
 
 
-    const encryptionPhone=await Encryption({value:phone,secretkey:process.env.ENCRYPTED_KEY_PHONE})
+
 
 
 
@@ -42,7 +42,7 @@ export const signUpService=async(req,res)=>{
         DOB,
         gender,
         password:hashpassword,
-        phone:encryptionPhone,
+        phone,
         confirmotp:hashOtp,
         otpExpiresAt:otpExpires,
         bloodtype
@@ -118,7 +118,7 @@ export const resendOtp=async(req,res)=>{
 export const signInUser=async(req,res)=>{
 
     const {email,password}=req.body
-    const user=await patientModel.findOne({email,isVerified:true})
+    const user=await patientModel.findOne({where:{email,isVerified:true}})
     if(!user){
         return res.status(400).json({message:'email or password not valid'})
     }
@@ -172,7 +172,7 @@ export const resetpassword=async(req,res)=>{
         return res.status(400).json({message:'password and confirm password not match'})
     }
 
-    const user =await patientModel.findOne({email:email})
+    const user =await patientModel.findOne({where:{email:email}})
     if(!user){
         return res.status(400).json({message:'user not found'})
     }

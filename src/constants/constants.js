@@ -12,6 +12,11 @@ export const bloodtype={
     ABmines:'AB-'
 }
 
-// constants/patientModel.constant.js
+export const appointmentStatus={
+    PENDING :'pending',
+    CONFIRMED:'confirmed',
+    CANCELD:'canceld',
+    COMPLETED:'completed'
+}
 
 

@@ -9,8 +9,17 @@ import admincontroller from '../Modules/admin/admin.controller.js'
 import authDoctorcontroller from '../Modules/Auth/auth-doctor/auth-doctor.controller.js'
 import doctorcontroller from '../Modules/doctor/doctor.controller.js'
 
+import {rateLimit}from 'express-rate-limit'
+
+const limit=rateLimit({
+    windowMs:15*60*1000,
+    limit:100,
+    message:'to many request',
+    legacyHeaders:false
+})
 
 const routerhandellar=(app)=>{
+    app.use(limit)
 
     app.use('/auth-admin',authadmincontroller)
     app.use('/admin',admincontroller)
