@@ -7,7 +7,10 @@ import blacklistmodel from '../DB/models/blacklist.model.js'
 export const authenticationMiddleware=(modelName)=>{
     return async(req,res,next)=>{
 
-            const {accesstoken}=req.headers
+        const authHeader = req.headers.authorization;
+        const accesstoken = authHeader && authHeader.split(' ')[1];
+        console.log(req)
+
             if(!accesstoken){
                 return res.status(400).json({message:'plasse enter access token'})
             }

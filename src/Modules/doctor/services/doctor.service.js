@@ -9,37 +9,7 @@ import { Op } from "sequelize";
 
 
 
-export const confirmEmail=async(req,res)=>{
-    const {otp,email}=req.body
 
-    const user = await doctormodel.findOne({
-        where: {
-            email: email,
-            isVerified: false,
-            confirmotp: { [Sequelize.Op.ne]: null } 
-        }
-    });
-    if(!user){
-        return res.status(400).json({message:'user not found '})
-    }
-    if (new Date() > user.otpExpiresAt) {
-    return res.status(400).json({ message: "OTP has expired, request a new one" });
-}
-
-    const validotp=compareSync(otp,user.confirmotp)
-    if(!validotp){
-        return res.status(400).json({message:'invalid otp'})
-    }
-
-
-    await doctormodel.update({
-        isVerified:true,
-        confirmotp:null,
-        otpExpiresAt:null
-    },{where:{email:user.email}})
-
-    res.status(200).json({message:'confirm email successfully'})
-}
 
 
 

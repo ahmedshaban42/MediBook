@@ -7,12 +7,14 @@ import appointmentModel from '../../../DB/models/appointment.model.js'
 import adminModel from '../../../DB/models/admin.model.js'
 import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
+import { Sequelize } from 'sequelize'
+import { compareSync } from "bcrypt"
 
 export const createDoctorAccount=async(req,res)=>{
     const{doctorName,email,password,phone,specialization,experienceYears,DOB,gender}=req.body
 
     const doctor=await doctormodel.findOne({where:{email}})
-    console.log(doctor)
+
     if(doctor){
         return res.status(400).json({message:'email is already exists'})
     }
@@ -200,4 +202,81 @@ export const getAllAppointmentInday=async(req,res)=>{
         });
 
     res.status(200).json({message:'Appointment is',allAppointments})
+}
+
+
+
+export const SearchForADoctorOrPatient=async(req,res)=>{
+    const {id:adminId}=req.loggedinuser
+    const {query,role}=req.query
+    const admin=await adminModel.findByPk(adminId)
+    if(!admin){
+        return res.status(404).json({message:'can not find admin'})
+    }
+
+    
+
+    let data
+    if(role==='doctor'){
+        data=await doctormodel.findAll({
+            where: {
+                [Op.or]: [
+                    { doctorName: { [Op.like]: `%${query}%` } },
+                    { phone: { [Op.like]: `%${query}%` } },
+                    { email: { [Op.like]: `%${query}%` } }
+                ]
+            },
+            attributes: ['id', 'doctorName', 'phone', 'email','specialization']
+        })
+
+    }else if(role==='Patient'){
+        data=await patientModel.findAll({
+            where: {
+                [Op.or]: [
+                    { patientName: { [Op.like]: `%${query}%` } },
+                    { phone: { [Op.like]: `%${query}%` } },
+                    { email: { [Op.like]: `%${query}%` } } 
+                ],
+                
+            },
+            attributes: ['id', 'patientName', 'phone', 'email']
+        })
+
+    }
+
+    res.status(200).json({message:'result',data})
+
+}
+
+
+export const confirmEmail=async(req,res)=>{
+    const {otp,email}=req.body
+
+    const user = await doctormodel.findOne({
+        where: {
+            email: email,
+            isVerified: false,
+            confirmotp: { [Sequelize.Op.ne]: null } 
+        }
+    });
+    if(!user){
+        return res.status(400).json({message:'user not found '})
+    }
+    if (new Date() > user.otpExpiresAt) {
+    return res.status(400).json({ message: "OTP has expired, request a new one" });
+}
+
+    const validotp=compareSync(otp,user.confirmotp)
+    if(!validotp){
+        return res.status(400).json({message:'invalid otp'})
+    }
+
+
+    await doctormodel.update({
+        isVerified:true,
+        confirmotp:null,
+        otpExpiresAt:null
+    },{where:{email:user.email}})
+
+    res.status(200).json({message:'confirm email successfully'})
 }

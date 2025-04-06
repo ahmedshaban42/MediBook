@@ -1,5 +1,6 @@
 import express from 'express'
 import { connection } from './DB/conection.js'
+import cors from "cors"
 
 import path from 'path'
 import { config } from 'dotenv'
@@ -11,6 +12,21 @@ import patientModel from './DB/models/patient.model.js'
 import doctormodel from './DB/models/doctors.model.js'
 import adminModel from './DB/models/admin.model.js'
 import appointmentModel from './DB/models/appointment.model.js'
+
+
+
+const whitList=[process.env.FRONTEND_ORIGIN]
+const corsOptions={
+    origin:function(origin,callback){
+        if(!origin || whitList.includes(origin)){
+            callback(null,true)
+        }else{
+            console.log(`Blocked CORS request from: ${origin}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    }
+}
+
 
 const bootstrab=()=>{
     const app=express()
@@ -24,6 +40,7 @@ const bootstrab=()=>{
     appointmentModel
 
     app.use(express.json())
+    app.use(cors(corsOptions))
 
     routerhandellar(app)
 

@@ -1,6 +1,6 @@
 import { Router } from "express";
 const admin=Router()
-import {createDoctorAccount,BookingReview,findAppointmentDoctor,findAppointmentpatient,getAllAppointmentInday}from './services/admin.service.js'
+import {confirmEmail,createDoctorAccount,BookingReview,findAppointmentDoctor,findAppointmentpatient,getAllAppointmentInday,SearchForADoctorOrPatient}from './services/admin.service.js'
 
 import { errorHandler } from "../../Middleware/error-handeller.middleware.js";
 import { authenticationMiddleware,authorizationMiddleware } from "../../Middleware/authentication.middleware.js";
@@ -41,4 +41,17 @@ admin.get('/getAllAppointmentInday',
     errorHandler(getAllAppointmentInday)
 )
 
+
+
+admin.get('/Search-for-a-doctor-or-patient',
+    errorHandler(authenticationMiddleware(adminModel)),
+    errorHandler(authorizationMiddleware('admin')),
+    errorHandler(SearchForADoctorOrPatient)
+)
+
+admin.post('/confirm-doctor-account',
+    errorHandler(authenticationMiddleware(adminModel)),
+    errorHandler(authorizationMiddleware('admin')),
+    errorHandler(confirmEmail)
+)
 export default admin
