@@ -18,7 +18,7 @@ import doctormodel from "../../DB/models/doctors.model.js";
 
 
 doctor.put('/update-profile-data',
-    errorHandler(authenticationMiddleware(doctormodel)),
+    errorHandler(authenticationMiddleware()),
     errorHandler(authorizationMiddleware('doctor')),
     errorHandler(updateprofiledata)
 )
@@ -30,13 +30,13 @@ doctor.put('/update-password',
 )
 
 doctor.patch('/completed-appointmentStatus/:appointmentId',
-    errorHandler(authenticationMiddleware(doctormodel)),
+    errorHandler(authenticationMiddleware()),
     errorHandler(authorizationMiddleware('doctor')),
     errorHandler(completeAppointment)
 )
 
 doctor.get('/get-All-Appointment-In-day',
-    errorHandler(authenticationMiddleware(doctormodel)),
+    errorHandler(authenticationMiddleware()),
     errorHandler(authorizationMiddleware('doctor')),
     errorHandler(getAllAppointmentInday)
 )

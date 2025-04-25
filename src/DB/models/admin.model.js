@@ -58,6 +58,26 @@ adminModel.init({
         type: DataTypes.STRING,
         allowNull: false,
         defaultValue: 'admin'
+    },
+    profileImageUrl: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
+    },
+    profileImagePublicId: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
+    },
+    coverImageUrl: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
+    },
+    coverImagePublicId: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
     }
 },{
     sequelize:sequelizeconfig,

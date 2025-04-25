@@ -7,7 +7,9 @@ import doctormodel from "../../../DB/models/doctors.model.js"
 import { Encryption,Decryption } from "../../../utils/encryption.utils.js"
 import appointmentModel from "../../../DB/models/appointment.model.js"
 import { DateTime } from "luxon";
-import { model } from "mongoose"
+import {cloudinary}from '../../../config/cloudinary.config.js'
+import { where } from "sequelize"
+import MedicalHistoryModel from "../../../DB/models/MedicalHistory.model.js"
 
 
 
@@ -273,12 +275,128 @@ export const getAllAppointments=async(req,res)=>{
         where:{
             patient_id:patient.id,
         },
-        include:[{
-            model:patientModel,
-            as:'patientData',
-            attributes:['patientName']
-        }],
+        include:[
+            {
+                model:patientModel,
+                as:'patientData',
+                attributes:['patientName']
+            },
+            {
+                model:MedicalHistoryModel,
+                as:'MedicalHistoryAppointmentData',
+                include:[
+                    {
+                        model:doctormodel,
+                        as:'doctorData',
+                        attributes:['id','doctorName','email','phone','specialization','experienceYears']
+                    }
+                ],
+                attributes:['id','notes','diagnosis','medications','requestedTests']
+            }
+        ],
         attributes:{exclude:['createdAt','updatedAt']}
     })
-    res.status(200).json({message:"appointments is",data})
+    res.status(200).json({message:"Appointments fetched successfully",data})
+}
+
+
+
+export const uploadProfilePictureCloud=async(req,res)=>{
+    const {id:patientid}=req.loggedinuser
+    const {file}=req
+    if(!file){
+        return res.status(400).json({message:'no file uploaded'})
+    }
+
+    const {secure_url,public_id}=await cloudinary().uploader.upload(file.path,{
+        folder:`${process.env.CLOUDINARY_FOLDER}/patient/ProfilePicture`
+    })
+
+    const patient=await patientModel.findByPk(patientid)
+    if(!patient){
+        return res.status.json({message:'patient not found'})
+    }
+    await patient.update({
+        profileImageUrl:secure_url,
+        profileImagePublicId:public_id
+    })
+
+    res.json({ message: 'Patient image updated successfully', patient });
+}
+
+
+
+
+export const uploadCoverPictureCloud=async(req,res)=>{
+    const {id:patientid}=req.loggedinuser
+    const {file}=req
+    if(!file){
+        return res.status(400).json({message:'no file uploaded'})
+    }
+
+    const {secure_url,public_id}=await cloudinary().uploader.upload(file.path,{
+        folder:`${process.env.CLOUDINARY_FOLDER}/patient/coverPicture`
+    })
+
+    const patient=await patientModel.findByPk(patientid)
+    if(!patient){
+        res.status.json({message:'patient not found'})
+    }
+    await patient.update({
+        coverImageUrl:secure_url,
+        coverImagePublicId:public_id
+    })
+
+    res.json({ message: 'Patient image updated successfully', patient });
+}
+
+export const deleteProfilePictureCloud=async(req,res)=>{
+    const {id:patientid}=req.loggedinuser
+    const patient=await patientModel.findByPk(patientid)
+    if(!patient){
+        return res.status(404).json({message:'patient not found'})
+    }
+
+    if(patient.profileImageUrl===null||patient.profileImagePublicId===null){
+        return res.status(400).json({message:'no profile picture to delete'})
+    }
+    const ProfilePictureid=patient.profileImagePublicId
+    const data=await cloudinary().uploader.destroy(ProfilePictureid)
+    if (data.result !== "ok") {
+        return res.status(500).json({ message: "Failed to delete profile picture from Cloudinary", error: data });
+    }
+
+    const updatePathient=await patient.update({
+        profileImageUrl:null,
+        profileImagePublicId:null},
+        {where:{id:patientid}}
+    )
+    res.json({ message: 'Patient image delete successfully' });
+}
+
+
+
+
+export const deleteCoverPictureCloud=async(req,res)=>{
+    const {id:patientid}=req.loggedinuser
+    const patient=await patientModel.findByPk(patientid)
+    if(!patient){
+        return res.status(404).json({message:'patient not found'})
+    }
+
+    if(patient.coverImageUrl===null||patient.coverImagePublicId===null){
+        return res.status(400).json({message:'no profile picture to delete'})
+    }
+    const coverImagePublicId=patient.coverImagePublicId
+    const data=await cloudinary().uploader.destroy(coverImagePublicId)
+    if (data.result !== "ok") {
+        return res.status(500).json({ message: "Failed to delete cover picture from Cloudinary", error: data });
+    }
+
+    const updatePathient=await patient.update({
+        coverImageUrl:null,
+        coverImagePublicId:null},
+        {where:{id:patientid}}
+    )
+    res.json({ message: 'Patient image delete successfully' });
 }

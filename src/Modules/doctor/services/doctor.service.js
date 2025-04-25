@@ -5,6 +5,7 @@ import blacklistmodel from '../../../DB/models/blacklist.model.js'
 import appointmentModel from '../../../DB/models/appointment.model.js'
 import { DateTime } from 'luxon'
 import { Op } from "sequelize";
+import appointmentFileModel from '../../../DB/models/appointmentFile.models.js'
 
 
 
@@ -117,6 +118,8 @@ export const completeAppointment=async(req,res)=>{
 
 
 
+
+
 export const getAllAppointmentInday=async(req,res)=>{
     const {id:doctorId}=req.loggedinuser
     const {dateTime}=req.query
@@ -140,8 +143,16 @@ export const getAllAppointmentInday=async(req,res)=>{
                 doctor_id: doctorId,
                 dateTime: {
                     [Op.between]: [startOfDay, endOfDay],
-                }
+                },
             },
+            include:[
+                {
+                    model:appointmentFileModel,
+                    foreignKey:'appointmentId',
+                    as:'appointmentFileData',
+                    attributes:{exclude:['createdAt','updatedAt']},
+                },
+            ],
             order: [["dateTime", "ASC"]],
         });
 

@@ -19,4 +19,22 @@ export const appointmentStatus={
     COMPLETED:'completed'
 }
 
+export const roles={
+    Admin:'admin'
+}
+
+export const allowExtentionns=['image/jpeg']
+
+export const fileTypes = {
+    XRAY: 'x-ray',
+    BLOOD_TEST: 'blood test',
+    MRI: 'MRI',
+    CT_SCAN: 'CT scan',
+    ULTRASOUND: 'ultrasound',
+    PRESCRIPTION: 'prescription',
+    MEDICAL_REPORT: 'medical report',
+    ECG: 'ECG',
+    URINE_TEST: 'urine test',
+    OTHER: 'other'
+};  
 

@@ -9,6 +9,11 @@ import admincontroller from '../Modules/admin/admin.controller.js'
 import authDoctorcontroller from '../Modules/Auth/auth-doctor/auth-doctor.controller.js'
 import doctorcontroller from '../Modules/doctor/doctor.controller.js'
 
+import MedicalHistoryController from '../Modules/MedicalHistory/MedicalHistory.controller.js'
+
+import ratingController from '../Modules/rating/rating.controller.js'
+import appointmentFileController from '../Modules/appointmentFile/appointmentFile.controller.js'
+
 import {rateLimit}from 'express-rate-limit'
 
 const limit=rateLimit({
@@ -31,6 +36,10 @@ const routerhandellar=(app)=>{
 
     app.use('/auth-user',authUsercontroller)
     app.use('/user',usercontroller)
+
+    app.use('/MedicalHistory',MedicalHistoryController)
+    app.use('/Rating',ratingController)
+    app.use('/AppointmentFiles',appointmentFileController)
 
 
 

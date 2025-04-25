@@ -65,6 +65,26 @@ patientModel.init({
     isVerified:{
         type:DataTypes.STRING,
         defaultValue:false
+    },
+    profileImageUrl: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
+    },
+    profileImagePublicId: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
+    },
+    coverImageUrl: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
+    },
+    coverImagePublicId: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
     }
 
 },{

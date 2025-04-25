@@ -70,6 +70,18 @@ doctormodel.init({
         type: DataTypes.STRING,
         allowNull: false,
         defaultValue: 'doctor'
+    },
+    averageRating:{
+        type:DataTypes.INTEGER,
+        allowNull:true
+    },
+    profileImage:{
+        type:DataTypes.STRING,
+        allowNull:true
+    },
+    coverImage:{
+        type:DataTypes.STRING,
+        allowNull:true
     }
 },{
     sequelize:sequelizeconfig,

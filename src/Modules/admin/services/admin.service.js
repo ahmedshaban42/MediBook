@@ -9,6 +9,7 @@ import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
 import { Sequelize } from 'sequelize'
 import { compareSync } from "bcrypt"
+import { cloudinary } from '../../../config/cloudinary.config.js'
 
 export const createDoctorAccount=async(req,res)=>{
     const{doctorName,email,password,phone,specialization,experienceYears,DOB,gender}=req.body
@@ -279,4 +280,112 @@ export const confirmEmail=async(req,res)=>{
     },{where:{email:user.email}})
 
     res.status(200).json({message:'confirm email successfully'})
+}
+
+
+export const uploadProfilePictureCloud=async(req,res)=>{
+    const {id:adminId}=req.loggedinuser
+    const {file}=req
+    if(!file){
+        return res.status(400).json({message:'no file uploaded'})
+    }
+
+    const {secure_url,public_id}=await cloudinary().uploader.upload(file.path,{
+        folder:`${process.env.CLOUDINARY_FOLDER}/admin/profilePicture`
+    })
+
+    const admin=await adminModel.findByPk(adminId)
+    if(!admin){
+        return res.status.json({message:'admin not found'})
+    }
+
+    const updateAdmin=await admin.update({
+        profileImageUrl:secure_url,
+        profileImagePublicId:public_id
+    })
+    res.json({ message: 'admin image updated successfully', updateAdmin});
+}
+
+
+
+export const uploadCoverPictureCloud=async(req,res)=>{
+    const {id:adminId}=req.loggedinuser
+    const {file}=req
+    if(!file){
+        return res.status(400).json({message:'no file uploaded'})
+    }
+
+    const {secure_url,public_id}=await cloudinary().uploader.upload(file.path,{
+        folder:`${process.env.CLOUDINARY_FOLDER}/admin/coverPicture`
+    })
+
+    const admin=await adminModel.findByPk(adminId)
+    if(!admin){
+        res.status.json({message:'admin not found'})
+    }
+
+    const updateAdmin=await admin.update({
+        coverImageUrl:secure_url,
+        coverImagePublicId:public_id
+    })
+
+    res.json({ message: 'admin image updated successfully', updateAdmin});
+}
+
+
+
+export const deleteProfilePictureCloud=async(req,res)=>{
+    const {id:adminId}=req.loggedinuser
+    const Admin=await adminModel.findByPk(adminId)
+    if(!Admin){
+        res.status.json({message:'admin not found'})
+    }
+
+    if(Admin.profileImageUrl===null || Admin.profileImagePublicId===null ){
+        return res.status(400).json({message:'no profile picture to delete'})
+    }
+
+    const AdminProfileImagePublicId=Admin.profileImagePublicId
+    const data=await cloudinary().uploader.destroy(AdminProfileImagePublicId)
+    if(data.result!=='ok'){
+        return res.status(500).json({ message: "Failed to delete profile picture from Cloudinary", error: data });
+    }
+    await adminModel.update(
+        {
+            profileImageUrl:null,
+            profileImagePublicId:null
+        },
+        {where:{id:adminId}})
+        res.json({ message: 'Admin image delete successfully' });
+}
+
+
+
+
+
+
+
+
+export const deleteCoverPictureCloud=async(req,res)=>{
+    const {id:adminId}=req.loggedinuser
+    const admin=await adminModel.findByPk(adminId)
+    if(!admin){
+        return res.status(404).json({message:'admin not found'})
+    }
+
+    if(admin.coverImageUrl===null||admin.coverImagePublicId===null){
+        return res.status(400).json({message:'no profile picture to delete'})
+    }
+    const coverImagePublicId=admin.coverImagePublicId
+    const data=await cloudinary().uploader.destroy(coverImagePublicId)
+    if (data.result !== "ok") {
+        return res.status(500).json({ message: "Failed to delete cover picture from Cloudinary", error: data });
+    }
+
+    await admin.update({
+        coverImageUrl:null,
+        coverImagePublicId:null},
+        {where:{id:adminId}}
+    )
+    res.json({ message: 'admin image delete successfully' });
 }

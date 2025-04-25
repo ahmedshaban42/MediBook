@@ -12,7 +12,9 @@ import patientModel from './DB/models/patient.model.js'
 import doctormodel from './DB/models/doctors.model.js'
 import adminModel from './DB/models/admin.model.js'
 import appointmentModel from './DB/models/appointment.model.js'
-
+import MedicalHistoryModel from './DB/models/MedicalHistory.model.js'
+import ratingModel from './DB/models/ratings.model.js'
+import appointmentFileModel from './DB/models/appointmentFile.models.js'
 
 
 const whitList=[process.env.FRONTEND_ORIGIN]
@@ -38,6 +40,9 @@ const bootstrab=()=>{
     doctormodel
     adminModel
     appointmentModel
+    MedicalHistoryModel
+    ratingModel
+    appointmentFileModel
 
     app.use(express.json())
     app.use(cors(corsOptions))
