@@ -1,7 +1,9 @@
 import { Router } from "express";
 const doctor=Router()
 
-import {updateprofiledata,updatepassword,completeAppointment,getAllAppointmentInday}from './services/doctor.service.js'
+import {
+    getAllDoctors,updateprofiledata,updatepassword,
+    completeAppointment,getAllAppointmentInday}from './services/doctor.service.js'
 
 import { errorHandler } from "../../Middleware/error-handeller.middleware.js";
 
@@ -13,7 +15,9 @@ import doctormodel from "../../DB/models/doctors.model.js";
 
 
 
-
+doctor.get('/doctors',
+    errorHandler(getAllDoctors)
+)
 
 
 

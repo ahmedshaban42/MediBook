@@ -12,7 +12,15 @@ import appointmentFileModel from '../../../DB/models/appointmentFile.models.js'
 
 
 
-
+export const getAllDoctors=async(req,res)=>{
+    const doctor=await doctormodel.findAll({
+        attributes:['id','doctorName','email','specialization','experienceYears','averageRating','profileImage']
+    })
+    if(!doctor){
+        return res.status(400).json({message:'can not find patient'})
+    }
+    res.status(200).json({message:'doctors:',doctor})
+}
 
 export const updatepassword=async(req,res)=>{
     const {id}=req.loggedinuser
@@ -20,7 +28,7 @@ export const updatepassword=async(req,res)=>{
 
     const doctor=await doctormodel.findByPk(id)
     if(!doctor){
-        return res.status(400).json({message:'can not find patient'})
+        return res.status(400).json({message:'can not find doctor'})
     }
 
     const ispasswordMatche=compareSync(oldpassword,doctor.password)
