@@ -43,7 +43,7 @@ user.get('/get-all-doctors',
 user.post('/Appointment-Booking',
     errorHandler(authenticationMiddleware()),
     errorHandler(authorizationMiddleware('patient')),
-    errorHandler(validationMW(AppointmentBookingSchema)),
+    //errorHandler(validationMW(AppointmentBookingSchema)),
     errorHandler(CheckBookingDates()),
     errorHandler(AppointmentBooking)
 )

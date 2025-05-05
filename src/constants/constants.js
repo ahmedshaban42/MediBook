@@ -38,3 +38,8 @@ export const fileTypes = {
     OTHER: 'other'
 };  
 
+export const AppointmentType={
+    VIDEO:'video',
+    IN_PERSON: 'in_person',
+}
+

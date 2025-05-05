@@ -8,10 +8,10 @@ import { Encryption,Decryption } from "../../../utils/encryption.utils.js"
 import appointmentModel from "../../../DB/models/appointment.model.js"
 import { DateTime } from "luxon";
 import {cloudinary}from '../../../config/cloudinary.config.js'
-import { where } from "sequelize"
+
 import MedicalHistoryModel from "../../../DB/models/MedicalHistory.model.js"
-
-
+import {createZoomMeeting} from '../../../utils/zoom.js' 
+import {AppointmentType}from '../../../constants/constants.js'
 
 
 export const updateprofiledata=async(req,res)=>{
@@ -108,7 +108,7 @@ export const getAallDoctors=async(req,res)=>{
 
 export const AppointmentBooking=async(req,res)=>{
     const {id}=req.loggedinuser//patient id
-    const {doctor_id ,dateTime,timezone }=req.body
+    const {doctor_id ,dateTime,timezone,appointmenttype }=req.body
 
     const patient=await patientModel.findByPk(id)
     if(!patient){
@@ -139,13 +139,28 @@ export const AppointmentBooking=async(req,res)=>{
     const formattedLocalTime = appointmentTime.toFormat("dd-MM-yyyy hh:mm a");
     const formattedCairoTime = DateTime.fromISO(cairoTime).toFormat("dd-MM-yyyy hh:mm a");
 
-
+    let zoomData=null
+    if(appointmenttype===AppointmentType.VIDEO){
+        try{
+            zoomData=await createZoomMeeting({
+                topic:`Appointment with Dr. ${doctor.doctorName}`,
+                start_time:appointmentTime.setZone('UTC').toISO(),
+                duration:30
+            })
+        }catch(error){
+            console.error("Zoom error:",  error.response?.data || error.message || error);
+            return res.status(500).json({ message: "Failed to create Zoom meeting" });
+        }
+    }
+    
     const booket=await appointmentModel.findOrCreate({
         where:{patient_id:patient.id,doctor_id:doctor.id},
         defaults:{
             doctor_id :doctor.id,
             dateTime:cairoTime,
-            patient_id :id
+            patient_id :id,
+            zoomLink:zoomData?.join_url,
+            appointmenttype: appointmenttype || AppointmentType.IN_PERSON
         }
     })
     if(!booket[1]){
@@ -163,6 +178,7 @@ export const AppointmentBooking=async(req,res)=>{
         <p><strong>Patient:</strong> ${patient.patientName}</p>
         <p><strong>Doctor:</strong> ${doctor.doctorName}</p>
         <p><strong>Doctor's Specialty:</strong> ${doctor.specialization}</p>
+        ${zoomData ? `<p><strong>Zoom Meeting:</strong> <a href="${zoomData.join_url}">${zoomData.join_url}</a></p>` : ''}
         <p><i>Please keep this email for your records. If you have any questions, feel free to contact us.</i></p>
         `,
         to: patient.email,
@@ -171,7 +187,8 @@ export const AppointmentBooking=async(req,res)=>{
     res.status(200).json({ 
         message:"done",
         localTime: formattedLocalTime + ` (${timezone})`,
-        cairoTime: formattedCairoTime + ` (cairo time) `
+        cairoTime: formattedCairoTime + ` (cairo time) `,
+        zoomLink:zoomData?.join_url
     });
     
 }

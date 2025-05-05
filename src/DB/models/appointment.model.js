@@ -5,7 +5,7 @@ import { appointmentStatus } from "../../constants/constants.js";
 import patientModel from "./patient.model.js";
 import doctormodel from "./doctors.model.js";
 import adminModel from "./admin.model.js";
-
+import { AppointmentType } from "../../constants/constants.js";
 
 
 class appointmentModel extends Model{}
@@ -24,6 +24,15 @@ appointmentModel.init({
         type:DataTypes.DATE,
         allowNull:false
     },
+    appointmenttype:{
+        type:DataTypes.ENUM(...Object.values(AppointmentType)),
+        defaultValue:AppointmentType.IN_PERSON,
+        allowNull:false,
+    },
+    zoomLink:{
+        type:DataTypes.STRING,
+        allowNull:true
+    }
 },{
     sequelize:sequelizeconfig,
     tableName:'tbl_appointments',
